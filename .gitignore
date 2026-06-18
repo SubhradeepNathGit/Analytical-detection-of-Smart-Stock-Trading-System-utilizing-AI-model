@@ -1,0 +1,8 @@
+venv/
+lightning_logs/
+__pycache__/
+.streamlit/
+*.pyc
+.ipynb_checkpoints/
+*.pt
+*.keras
