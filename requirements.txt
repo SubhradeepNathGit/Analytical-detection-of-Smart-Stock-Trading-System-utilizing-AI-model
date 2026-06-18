@@ -7,4 +7,4 @@ tensorflow==2.16.1
 scikit-learn==1.4.2
 plotly==5.22.0
 torch==2.3.0
-setuptools
+setuptools<70.0.0
