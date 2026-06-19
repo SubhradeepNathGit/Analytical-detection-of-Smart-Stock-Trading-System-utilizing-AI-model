@@ -13,6 +13,11 @@ import plotly.graph_objs as go
 import plotly.express as px
 import torch
 import neuralprophet.configure
+import logging
+
+# Prevent PyTorch Lightning background threads from crashing Streamlit's logger context
+logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
+logging.getLogger("neuralprophet").setLevel(logging.ERROR)
 
 # ---------------------------------------------------------
 # PyTorch 2.6+ weights_only=True UnpicklingError Fix
