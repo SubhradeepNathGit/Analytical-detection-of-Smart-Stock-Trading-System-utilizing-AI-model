@@ -6,10 +6,11 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"], [data
     background-color: #000000 !important;
     color: #FFFFFF !important;
     font-family: 'Outfit', sans-serif;
-}
-
 [data-testid="stHeader"] {
-    position: absolute !important;
+    background-color: #000000 !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
 
 /* Main Title Styling */
