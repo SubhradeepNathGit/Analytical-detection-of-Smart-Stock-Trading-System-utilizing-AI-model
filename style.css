@@ -8,6 +8,10 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"], [data
     font-family: 'Outfit', sans-serif;
 }
 
+[data-testid="stHeader"] {
+    position: absolute !important;
+}
+
 /* Main Title Styling */
 .main-title {
     text-align: center;
