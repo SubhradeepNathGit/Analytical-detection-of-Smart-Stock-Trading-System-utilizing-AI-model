@@ -407,21 +407,24 @@ with tab5:
     price_diff = final_forecast_price - last_actual_price
     pct_change = (price_diff / last_actual_price) * 100
     
-    if pct_change > 5:
+    if pct_change > 15:
         recom, color, animation = "STRONG BUY", "#00e676", "pulse-green"
-        desc = f"AI Predicts massive {pct_change:.2f}% Upside. Highly favorable entry point."
+        desc = f"Projected {pct_change:.2f}% Upside. AI detects highly favorable risk-reward ratio for accumulation."
+    elif pct_change > 5:
+        recom, color, animation = "ACCUMULATE", "#00C853", "pulse-green"
+        desc = f"Projected {pct_change:.2f}% Growth. Consider strategic entry points on market pullbacks."
     elif pct_change > 1:
-        recom, color, animation = "BUY", "#00C853", "pulse-green"
-        desc = f"AI Predicts {pct_change:.2f}% Growth. Steady accumulation phase."
-    elif pct_change > -1:
-        recom, color, animation = "HOLD", "#FFD600", "pulse-yellow"
-        desc = f"AI Predicts Flat Market ({pct_change:.2f}%). Wait for clear momentum breakout."
-    elif pct_change > -5:
-        recom, color, animation = "SELL", "#FF3D00", "pulse-red"
-        desc = f"AI Predicts {pct_change:.2f}% Drop. Consider taking profits."
+        recom, color, animation = "MODERATE BUY", "#00C853", "pulse-green"
+        desc = f"Slight bullish divergence ({pct_change:.2f}%). Maintain cautious upside exposure."
+    elif pct_change > -2:
+        recom, color, animation = "NEUTRAL / HOLD", "#FFD600", "pulse-yellow"
+        desc = f"Market consolidating ({pct_change:.2f}%). Awaiting clearer momentum breakout signals."
+    elif pct_change > -8:
+        recom, color, animation = "HIGH RISK EXPOSURE", "#FF3D00", "pulse-red"
+        desc = f"Projected {pct_change:.2f}% Drop. AI detects bearish technicals. Consider hedging."
     else:
-        recom, color, animation = "STRONG SELL", "#D50000", "pulse-red"
-        desc = f"AI Predicts heavy {pct_change:.2f}% Plunge. Exit positions immediately."
+        recom, color, animation = "LIQUIDATE / AVOID", "#D50000", "pulse-red"
+        desc = f"Severe downside risk ({pct_change:.2f}%). Capital preservation is strongly recommended."
 
     load_html(
         'ai_card.html',
@@ -431,8 +434,13 @@ with tab5:
         desc=desc
     )
 
-    future_color = '#00e676' if pct_change >= 0 else '#FF3D00'
-    future_fill = 'rgba(0, 230, 118, 0.08)' if pct_change >= 0 else 'rgba(255, 61, 0, 0.08)'
+    future_color = color
+    if color in ["#00e676", "#00C853"]:
+        future_fill = 'rgba(0, 230, 118, 0.08)'
+    elif color == "#FFD600":
+        future_fill = 'rgba(255, 214, 0, 0.08)'
+    else:
+        future_fill = 'rgba(255, 61, 0, 0.08)'
 
     fig4 = go.Figure()
     fig4.add_trace(go.Scattergl(x=stocks['ds'], y=stocks['y'] * fx_rate, mode='lines', name='Original History', line=dict(color='#00E5FF', width=2.5), fill='tozeroy', fillcolor='rgba(0, 229, 255, 0.08)'))
