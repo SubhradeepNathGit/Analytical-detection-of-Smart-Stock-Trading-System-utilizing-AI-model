@@ -8,3 +8,4 @@ __pycache__/
 *.keras
 neuralprophet_model/
 *.ckpt
+.lr_find*

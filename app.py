@@ -203,6 +203,15 @@ def load_stock_data(ticker, start, end):
     modified_stock_data = stock_data.drop(columns=['Adj Close'], errors='ignore')
     return stock_data, modified_stock_data
 
+@st.cache_resource(show_spinner=False)
+def train_neural_prophet(ticker_str, end_date_str, _stocks_df):
+    model_neuralprophet = NeuralProphet(epochs=50, trainer_config={"enable_checkpointing": False})
+    model_neuralprophet.fit(_stocks_df, freq='B')
+    future = model_neuralprophet.make_future_dataframe(_stocks_df, periods=300)
+    forecast = model_neuralprophet.predict(future)
+    actual_prediction = model_neuralprophet.predict(_stocks_df)
+    return forecast, actual_prediction
+
 # ---------------------------------------------------------
 # Data Fetching & Processing
 # ---------------------------------------------------------
@@ -538,17 +547,8 @@ with tab5:
     stocks = modified_stock_data[['Date', 'Close']].copy()
     stocks.columns = ['ds', 'y']
     
-    @st.cache_resource(show_spinner=False)
-    def train_neural_prophet(_stocks_df):
-        model_neuralprophet = NeuralProphet(epochs=50, trainer_config={"enable_checkpointing": False})
-        model_neuralprophet.fit(_stocks_df, freq='B')
-        future = model_neuralprophet.make_future_dataframe(_stocks_df, periods=300)
-        forecast = model_neuralprophet.predict(future)
-        actual_prediction = model_neuralprophet.predict(_stocks_df)
-        return forecast, actual_prediction
-
     with st.spinner(" AI Model is computing 300-days future trajectory"):
-        forecast, actual_prediction = train_neural_prophet(stocks)
+        forecast, actual_prediction = train_neural_prophet(user_input, str(end_date), stocks)
 
     # Pin-point accuracy mathematical anchor
     last_actual_val = stocks['y'].iloc[-1]
@@ -654,9 +654,13 @@ with tab5:
     fig4 = go.Figure()
     fig4.add_trace(go.Scatter(x=stocks['ds'], y=stocks['y'] * fx_rate, mode='lines', name='Original History', line=dict(color='#00E5FF', width=2.5), fill='tozeroy', fillcolor='rgba(0, 229, 255, 0.08)'))
     
+    # Filter forecast strictly to future dates to prevent backwards zig-zag
+    last_date = stocks['ds'].iloc[-1]
+    future_only = forecast[forecast['ds'] > last_date]
+    
     # Weld the forecast to the exact last known historical point to eliminate visual gap
-    plot_forecast_ds = [stocks['ds'].iloc[-1]] + forecast['ds'].tolist()
-    plot_forecast_y = [(stocks['y'].iloc[-1]) * fx_rate] + (forecast['yhat1'] * fx_rate).tolist()
+    plot_forecast_ds = [last_date] + future_only['ds'].tolist()
+    plot_forecast_y = [(stocks['y'].iloc[-1]) * fx_rate] + (future_only['yhat1'] * fx_rate).tolist()
     
     fig4.add_trace(go.Scatter(x=plot_forecast_ds, y=plot_forecast_y, mode='lines', name='Future Trajectory', line=dict(color=future_color, width=2.5), fill='tozeroy', fillcolor=future_fill))
     
