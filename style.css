@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
-html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
+html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"], [data-testid="stHeader"] {
     background-color: #000000 !important;
     color: #FFFFFF !important;
     font-family: 'Outfit', sans-serif;
