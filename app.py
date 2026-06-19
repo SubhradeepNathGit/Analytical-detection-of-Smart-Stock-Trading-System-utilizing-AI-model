@@ -515,9 +515,13 @@ with tab4:
     y_predicted = (y_predicted * scale_factor) * fx_rate
     y_test = (y_test * scale_factor) * fx_rate
 
+    lstm_change = y_predicted[-1] - y_predicted[0]
+    lstm_color = '#00e676' if lstm_change >= 0 else '#FF3D00'
+    lstm_fill = 'rgba(0, 230, 118, 0.1)' if lstm_change >= 0 else 'rgba(255, 61, 0, 0.1)'
+
     fig3 = go.Figure()
-    fig3.add_trace(go.Scatter(y=y_test.flatten(), mode='lines', name='Actual Market Data', line=dict(color='#FFFFFF', width=2)))
-    fig3.add_trace(go.Scatter(y=y_predicted.flatten(), mode='lines', name='LSTM Prediction', line=dict(color='#00C853', width=2)))
+    fig3.add_trace(go.Scatter(y=y_test.flatten(), mode='lines', name='Actual Market Data', line=dict(color='rgba(255, 61, 0, 0.5)', width=1.5)))
+    fig3.add_trace(go.Scatter(y=y_predicted.flatten(), mode='lines', name='LSTM Prediction', line=dict(color=lstm_color, width=2.5), fill='tozeroy', fillcolor=lstm_fill))
     
     fig3.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
                        hovermode="x unified", height=500, xaxis_title="Days (Test Dataset)", yaxis_title=f"Price ({target_currency})",
@@ -543,8 +547,14 @@ with tab5:
         actual_prediction = model_neuralprophet.predict(_stocks_df)
         return forecast, actual_prediction
 
-    with st.spinner("🧠 AI Brain is computing 300-day future trajectory..."):
+    with st.spinner(" AI Model is computing 300-days future trajectory"):
         forecast, actual_prediction = train_neural_prophet(stocks)
+
+    # Pin-point accuracy mathematical anchor
+    last_actual_val = stocks['y'].iloc[-1]
+    last_fit_val = actual_prediction['yhat1'].iloc[-1]
+    correction_offset = last_actual_val - last_fit_val
+    forecast['yhat1'] = forecast['yhat1'] + correction_offset
 
     # AI Investment Intelligence Engine
     last_actual_price = stocks['y'].iloc[-1] * fx_rate
@@ -638,10 +648,17 @@ with tab5:
         </div>
     """, unsafe_allow_html=True)
 
+    future_color = '#00e676' if pct_change >= 0 else '#FF3D00'
+    future_fill = 'rgba(0, 230, 118, 0.08)' if pct_change >= 0 else 'rgba(255, 61, 0, 0.08)'
+
     fig4 = go.Figure()
-    fig4.add_trace(go.Scatter(x=stocks['ds'], y=stocks['y'] * fx_rate, mode='lines', name='Original History', line=dict(color='#FFFFFF', width=2)))
-    fig4.add_trace(go.Scatter(x=actual_prediction['ds'], y=actual_prediction['yhat1'] * fx_rate, mode='lines', name='Model Fit', line=dict(color='#00C853', width=1.5)))
-    fig4.add_trace(go.Scatter(x=forecast['ds'], y=forecast['yhat1'] * fx_rate, mode='lines', name='Future Trajectory', line=dict(color='#FF3D00', width=2)))
+    fig4.add_trace(go.Scatter(x=stocks['ds'], y=stocks['y'] * fx_rate, mode='lines', name='Original History', line=dict(color='#00E5FF', width=2.5), fill='tozeroy', fillcolor='rgba(0, 229, 255, 0.08)'))
+    
+    # Weld the forecast to the exact last known historical point to eliminate visual gap
+    plot_forecast_ds = [stocks['ds'].iloc[-1]] + forecast['ds'].tolist()
+    plot_forecast_y = [(stocks['y'].iloc[-1]) * fx_rate] + (forecast['yhat1'] * fx_rate).tolist()
+    
+    fig4.add_trace(go.Scatter(x=plot_forecast_ds, y=plot_forecast_y, mode='lines', name='Future Trajectory', line=dict(color=future_color, width=2.5), fill='tozeroy', fillcolor=future_fill))
     
     fig4.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
                        hovermode="x unified", height=500, xaxis_title="Timeline", yaxis_title=f"Projected Price ({target_currency})",
