@@ -285,26 +285,29 @@ def render_dashboard(user_input, target_currency, fx_rate, fx_symbol, hist_stock
     )
     
     import streamlit.components.v1 as components
-    components.html("""
+    import time
+    
+    components.html(f"""
     <script>
+        // Force iframe reload on currency change: {time.time()}
         const parentDoc = window.parent.document;
         const valueElements = parentDoc.querySelectorAll('.m-value');
         
-        valueElements.forEach(el => {
-            if (el.innerText.includes('.')) {
+        valueElements.forEach(el => {{
+            if (el.innerText.includes('.')) {{
                 const text = el.innerText;
                 const match = text.match(/^([^\\d]+)([\\d,]+\\.\\d+)$/);
-                if (match) {
+                if (match) {{
                     el.dataset.symbol = match[1];
                     el.dataset.baseValue = parseFloat(match[2].replace(/,/g, ''));
                     el.dataset.isPrice = 'true';
-                }
-            }
-        });
+                }}
+            }}
+        }});
         
-        setInterval(() => {
-            valueElements.forEach(el => {
-                if (el.dataset.isPrice === 'true') {
+        setInterval(() => {{
+            valueElements.forEach(el => {{
+                if (el.dataset.isPrice === 'true') {{
                     const base = parseFloat(el.dataset.baseValue);
                     const rand = Math.random();
                     let jitter = 0;
@@ -313,12 +316,12 @@ def render_dashboard(user_input, target_currency, fx_rate, fx_symbol, hist_stock
                     else jitter = 0;
                     
                     const newValue = base + jitter;
-                    const formatted = newValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    const formatted = newValue.toLocaleString('en-US', {{minimumFractionDigits: 2, maximumFractionDigits: 2}});
                     
                     el.innerText = el.dataset.symbol + formatted;
-                }
-            });
-        }, 1000);
+                }}
+            }});
+        }}, 1000);
     </script>
     """, height=0)
 
