@@ -51,7 +51,7 @@ st.markdown("""
         text-align: center;
         color: #8892B0;
         font-weight: 300;
-        margin-bottom: 40px;
+        margin-bottom: 15px;
         letter-spacing: 2px;
         text-transform: uppercase;
         font-size: 0.9rem;
@@ -82,16 +82,24 @@ st.markdown("""
     
     /* Tabs Styling */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 24px;
+        gap: 20px;
         background-color: transparent;
         border-bottom: none !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; 
+    }
+    .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
+        display: none;
     }
     .stTabs [data-baseweb="tab-border"] {
-        display: none !important; /* Removes the white line underneath all tabs */
+        display: none !important; 
     }
     .stTabs [data-baseweb="tab"] {
         height: 50px;
-        white-space: pre-wrap;
+        white-space: nowrap !important;
         background-color: transparent;
         border-radius: 4px 4px 0px 0px;
         gap: 1px;
@@ -125,6 +133,9 @@ st.markdown("""
             padding-top: 8px !important;
             padding-bottom: 8px !important;
         }
+        div[data-testid="stPlotlyChart"], div[data-testid="stPlotlyChart"] iframe {
+            height: 400px !important;
+        }
     }
 
     /* Hide Streamlit Branding but Keep Sidebar Toggle */
@@ -146,9 +157,10 @@ st.markdown("<p class='sub-title'> AI Trading Intelligence • Developed by Subh
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: #FFFFFF;'>Control Panel</h2>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
+    import datetime
     user_input = st.text_input('Stock Ticker', 'AAPL').upper()
     start_date = st.date_input('Start Date', pd.to_datetime('2016-01-01'))
-    end_date = st.date_input('End Date', pd.to_datetime('2024-06-03'))
+    end_date = st.date_input('End Date', datetime.date.today())
     
     st.markdown("### Currency Converter")
     target_currency = st.selectbox(
@@ -209,25 +221,91 @@ if stock_data.empty:
 # ---------------------------------------------------------
 # Top Metrics Board (With Currency Conversion)
 # ---------------------------------------------------------
-col1, col2, col3, col4 = st.columns(4)
 current_price = stock_data['Close'].iloc[-1] * fx_rate
 prev_price = stock_data['Close'].iloc[-2] * fx_rate
 price_change = current_price - prev_price
 pct_change = (price_change / prev_price) * 100
+delta_color = "#00e676" if price_change >= 0 else "#FF3D00"
+delta_arrow = "▲" if price_change >= 0 else "▼"
 
 high_52 = stock_data['Close'].tail(252).max() * fx_rate
 low_52 = stock_data['Close'].tail(252).min() * fx_rate
+avg_vol = int(stock_data['Volume'].tail(30).mean())
+today_high = stock_data['High'].iloc[-1] * fx_rate
+today_low = stock_data['Low'].iloc[-1] * fx_rate
 
-with col1:
-    st.metric(label="Current Price", value=f"{fx_symbol}{current_price:.2f}", delta=f"{price_change:.2f} ({pct_change:.2f}%)")
-with col2:
-    st.metric(label="52W High", value=f"{fx_symbol}{high_52:.2f}")
-with col3:
-    st.metric(label="52W Low", value=f"{fx_symbol}{low_52:.2f}")
-with col4:
-    st.metric(label="Avg Volume", value=f"{int(stock_data['Volume'].tail(30).mean()):,}")
-
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown(f"""
+    <style>
+    .metric-row {{
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 12px;
+        padding-bottom: 20px;
+    }}
+    .custom-metric-card {{
+        flex: 1;
+        min-width: 0;
+        background: rgba(20, 20, 20, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px 10px;
+        border-radius: 12px;
+        text-align: center;
+        backdrop-filter: blur(12px);
+        font-family: 'Outfit', sans-serif;
+        transition: transform 0.2s ease;
+    }}
+    .custom-metric-card:hover {{ transform: translateY(-2px); border-color: rgba(255,255,255,0.1); }}
+    .m-label {{ color: #8892B0; font-size: clamp(10px, 1vw, 12px); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+    .m-value {{ color: #FFFFFF; font-size: clamp(16px, 1.5vw, 24px); font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+    .m-delta {{ color: {delta_color}; font-size: clamp(10px, 1vw, 13px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }}
+    
+    @media (max-width: 768px) {{
+        .metric-row {{ 
+            flex-wrap: wrap; 
+            justify-content: space-between; 
+            gap: 10px; 
+            padding-bottom: 5px; 
+            overflow: visible;
+        }}
+        .custom-metric-card {{ 
+            flex: 0 0 calc(50% - 6px) !important; 
+            width: calc(50% - 6px) !important;
+            min-width: unset; 
+            padding: 15px 10px; 
+        }}
+        .m-value {{ font-size: 20px; }}
+        .sub-title {{ font-size: 0.75rem !important; letter-spacing: 1px; }}
+    }}
+    </style>
+    <div class="metric-row">
+        <div class="custom-metric-card">
+            <div class="m-label">Current Price</div>
+            <div class="m-value">{fx_symbol}{current_price:.2f}</div>
+            <div class="m-delta" style="color: {delta_color};">{delta_arrow} {abs(price_change):.2f} ({pct_change:.2f}%)</div>
+        </div>
+        <div class="custom-metric-card">
+            <div class="m-label">Today's High</div>
+            <div class="m-value">{fx_symbol}{today_high:.2f}</div>
+        </div>
+        <div class="custom-metric-card">
+            <div class="m-label">Today's Low</div>
+            <div class="m-value">{fx_symbol}{today_low:.2f}</div>
+        </div>
+        <div class="custom-metric-card">
+            <div class="m-label">52W High</div>
+            <div class="m-value">{fx_symbol}{high_52:.2f}</div>
+        </div>
+        <div class="custom-metric-card">
+            <div class="m-label">52W Low</div>
+            <div class="m-value">{fx_symbol}{low_52:.2f}</div>
+        </div>
+        <div class="custom-metric-card">
+            <div class="m-label">Avg Volume</div>
+            <div class="m-value">{avg_vol:,}</div>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # Tabbed Dashboard Interface
@@ -371,8 +449,10 @@ with tab2:
                 increasing_line_color='#00C853', decreasing_line_color='#FF3D00'))
     
     fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                      xaxis_rangeslider_visible=False, height=500, margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig, use_container_width=True)
+                      xaxis_rangeslider_visible=False, height=500, 
+                      legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="center", x=0.5),
+                      margin=dict(l=0, r=0, t=80, b=0))
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 # ---------------------------------------------------------
 # TAB 3: Moving Averages
@@ -389,8 +469,10 @@ with tab3:
     fig2.add_trace(go.Scatter(x=stock_data['Date'], y=ma200, mode='lines', name='200 MA', line=dict(color='#FF3D00', width=2)))
     
     fig2.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
-                       hovermode="x unified", height=500, margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig2, use_container_width=True)
+                       hovermode="x unified", height=500, 
+                       legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="center", x=0.5),
+                       margin=dict(l=0, r=0, t=80, b=0))
+    st.plotly_chart(fig2, use_container_width=True, config={'displayModeBar': False})
 
 # ---------------------------------------------------------
 # TAB 4: LSTM AI Prediction
@@ -439,8 +521,9 @@ with tab4:
     
     fig3.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
                        hovermode="x unified", height=500, xaxis_title="Days (Test Dataset)", yaxis_title=f"Price ({target_currency})",
-                       margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig3, use_container_width=True)
+                       legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="center", x=0.5),
+                       margin=dict(l=0, r=0, t=80, b=0))
+    st.plotly_chart(fig3, use_container_width=True, config={'displayModeBar': False})
 
 # ---------------------------------------------------------
 # TAB 5: NeuralProphet Forecast
@@ -460,8 +543,100 @@ with tab5:
         actual_prediction = model_neuralprophet.predict(_stocks_df)
         return forecast, actual_prediction
 
-    with st.spinner("Training Prophet Algorithm for Future Projection..."):
+    with st.spinner("🧠 AI Brain is computing 300-day future trajectory..."):
         forecast, actual_prediction = train_neural_prophet(stocks)
+
+    # AI Investment Intelligence Engine
+    last_actual_price = stocks['y'].iloc[-1] * fx_rate
+    final_forecast_price = forecast['yhat1'].iloc[-1] * fx_rate
+    price_diff = final_forecast_price - last_actual_price
+    pct_change = (price_diff / last_actual_price) * 100
+    
+    if pct_change > 5:
+        recom, color, animation = "STRONG BUY", "#00e676", "pulse-green"
+        desc = f"AI Predicts massive {pct_change:.2f}% Upside. Highly favorable entry point."
+    elif pct_change > 1:
+        recom, color, animation = "BUY", "#00C853", "pulse-green"
+        desc = f"AI Predicts {pct_change:.2f}% Growth. Steady accumulation phase."
+    elif pct_change > -1:
+        recom, color, animation = "HOLD", "#FFD600", "pulse-yellow"
+        desc = f"AI Predicts Flat Market ({pct_change:.2f}%). Wait for clear momentum breakout."
+    elif pct_change > -5:
+        recom, color, animation = "SELL", "#FF3D00", "pulse-red"
+        desc = f"AI Predicts {pct_change:.2f}% Drop. Consider taking profits."
+    else:
+        recom, color, animation = "STRONG SELL", "#D50000", "pulse-red"
+        desc = f"AI Predicts heavy {pct_change:.2f}% Plunge. Exit positions immediately."
+
+    st.markdown(f"""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        
+        @keyframes pulse-green {{
+            0% {{ box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }}
+            70% {{ box-shadow: 0 0 0 15px rgba(0, 230, 118, 0); }}
+            100% {{ box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }}
+        }}
+        @keyframes pulse-red {{
+            0% {{ box-shadow: 0 0 0 0 rgba(213, 0, 0, 0.4); }}
+            70% {{ box-shadow: 0 0 0 15px rgba(213, 0, 0, 0); }}
+            100% {{ box-shadow: 0 0 0 0 rgba(213, 0, 0, 0); }}
+        }}
+        @keyframes pulse-yellow {{
+            0% {{ box-shadow: 0 0 0 0 rgba(255, 214, 0, 0.4); }}
+            70% {{ box-shadow: 0 0 0 15px rgba(255, 214, 0, 0); }}
+            100% {{ box-shadow: 0 0 0 0 rgba(255, 214, 0, 0); }}
+        }}
+        .ai-card {{
+            background: #000000;
+            border: 1px solid #1A1A1A;
+            border-radius: 8px;
+            padding: 35px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }}
+        .ai-card::before {{
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: {color};
+            box-shadow: 0 0 15px {color};
+        }}
+        .ai-title {{ color: #555555; font-size: 11px; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 20px; font-weight: 600; }}
+        .ai-recom {{ 
+            color: #FFFFFF; 
+            font-size: 42px; 
+            font-weight: 300; 
+            letter-spacing: 2px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 15px; 
+        }}
+        .pulse-dot {{
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: {color};
+            box-shadow: 0 0 10px {color};
+            animation: {animation} 2s infinite;
+        }}
+        .ai-desc {{ color: #888888; font-size: 15px; font-weight: 300; }}
+        </style>
+        
+        <div class="ai-card">
+            <div class="ai-title">Live AI Trading Intelligence</div>
+            <div class="ai-recom">
+                <div class="pulse-dot"></div>
+                {recom}
+            </div>
+            <div class="ai-desc">{desc}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
     fig4 = go.Figure()
     fig4.add_trace(go.Scatter(x=stocks['ds'], y=stocks['y'] * fx_rate, mode='lines', name='Original History', line=dict(color='#FFFFFF', width=2)))
@@ -470,7 +645,8 @@ with tab5:
     
     fig4.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
                        hovermode="x unified", height=500, xaxis_title="Timeline", yaxis_title=f"Projected Price ({target_currency})",
-                       margin=dict(l=0, r=0, t=30, b=0))
+                       legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="center", x=0.5),
+                       margin=dict(l=0, r=0, t=80, b=0))
     
     # Modern Interactive Range Selector
     fig4.update_xaxes(
@@ -488,4 +664,4 @@ with tab5:
         )
     )
     
-    st.plotly_chart(fig4, use_container_width=True)
+    st.plotly_chart(fig4, use_container_width=True, config={'displayModeBar': False})
