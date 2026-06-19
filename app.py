@@ -93,6 +93,7 @@ def load_stock_data(ticker, start, end):
     if isinstance(stock_data.columns, pd.MultiIndex):
         stock_data.columns = stock_data.columns.droplevel(1)
     stock_data.reset_index(inplace=True)
+    stock_data.dropna(subset=['Close', 'Open', 'High', 'Low'], inplace=True)
     modified_stock_data = stock_data.drop(columns=['Adj Close'], errors='ignore')
     return stock_data, modified_stock_data
 
