@@ -193,7 +193,7 @@ def get_live_data(ticker):
 # Real-Time Dashboard Rendering Fragment
 # ---------------------------------------------------------
 @st.fragment
-def render_dashboard():
+def render_dashboard(user_input, target_currency, fx_rate, fx_symbol, hist_stock_data, hist_modified_stock_data):
     col1, col2 = st.columns([0.88, 0.12])
     with col2:
         st.button("Live Sync", use_container_width=True, key="refresh_btn", help="Sync exact real-time market data")
@@ -664,4 +664,4 @@ def render_dashboard():
         st.plotly_chart(fig4, use_container_width=True, config={'displayModeBar': False})
 
 # Call the fragment to render everything below the data fetching
-render_dashboard()
+render_dashboard(user_input, target_currency, fx_rate, fx_symbol, hist_stock_data, hist_modified_stock_data)
