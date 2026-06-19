@@ -2,208 +2,310 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
-html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"], [data-testid="stHeader"] {
-    background-color: #000000 !important;
-    color: #FFFFFF !important;
-    font-family: 'Outfit', sans-serif;
+html,
+body,
+[data-testid="stAppViewContainer"],
+[data-testid="stSidebar"],
 [data-testid="stHeader"] {
     background-color: #000000 !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-}
-
-/* Main Title Styling */
-.main-title {
-    text-align: center;
-    color: #FFFFFF;
-    font-weight: 800;
-    font-size: 3.5rem;
-    margin-bottom: 0px;
-    letter-spacing: -1px;
-}
-
-.sub-title {
-    text-align: center;
-    color: #8892B0;
-    font-weight: 300;
-    margin-bottom: 15px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-}
-
-/* Metric Cards - Premium Glassmorphism */
-div[data-testid="metric-container"] {
-    background: rgba(20, 20, 20, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    transition: all 0.3s ease;
-}
-
-div[data-testid="metric-container"]:hover {
-    border: 1px solid rgba(0, 200, 83, 0.5);
-    box-shadow: 0 0 20px rgba(0, 200, 83, 0.2);
-    transform: translateY(-2px);
-}
-
-/* Sidebar Premium Styling */
-[data-testid="stSidebar"] {
-    border-right: 1px solid rgba(255,255,255,0.05);
-}
-
-/* Tabs Styling */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 20px;
-    background-color: transparent;
-    border-bottom: none !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; 
-}
-.stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
-    display: none;
-}
-.stTabs [data-baseweb="tab-border"] {
-    display: none !important; 
-}
-.stTabs [data-baseweb="tab"] {
-    height: 50px;
-    white-space: nowrap !important;
-    background-color: transparent;
-    border-radius: 4px 4px 0px 0px;
-    gap: 1px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    color: #8892B0;
-    border: none !important;
-}
-.stTabs [aria-selected="true"] {
     color: #FFFFFF !important;
-}
-.stTabs [data-baseweb="tab-highlight"] {
-    background-color: #FF0000 !important;
-}
-
-/* Responsive Mobile & Tablet Adjustments */
-@media (max-width: 768px) {
-    .main-title {
-        font-size: 2rem !important;
-        line-height: 1.2 !important;
-    }
-    .sub-title {
-        font-size: 0.75rem !important;
-        margin-bottom: 20px !important;
-    }
-    [data-testid="stMetricValue"] {
-        font-size: 1.8rem !important;
-    }
-    .stTabs [data-baseweb="tab"] {
-        font-size: 0.85rem !important;
-        padding-top: 8px !important;
-        padding-bottom: 8px !important;
-    }
-    div[data-testid="stPlotlyChart"], div[data-testid="stPlotlyChart"] iframe {
-        height: 400px !important;
-    }
-}
-
-/* Hide Streamlit Branding but Keep Sidebar Toggle */
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-
-/* Custom Metric Row Styling */
-.metric-row {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    gap: 12px;
-    padding-bottom: 20px;
-}
-.custom-metric-card {
-    flex: 1;
-    min-width: 0;
-    background: rgba(20, 20, 20, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 20px 10px;
-    border-radius: 12px;
-    text-align: center;
-    backdrop-filter: blur(12px);
     font-family: 'Outfit', sans-serif;
-    transition: transform 0.2s ease;
-}
-.custom-metric-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.1); }
-.m-label { color: #8892B0; font-size: clamp(10px, 1vw, 12px); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.m-value { color: #FFFFFF; font-size: clamp(16px, 1.5vw, 24px); font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.m-delta { font-size: clamp(10px, 1vw, 13px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 
-@media (max-width: 768px) {
-    .metric-row { 
-        flex-wrap: wrap; 
-        justify-content: space-between; 
-        gap: 10px; 
-        padding-bottom: 5px; 
-        overflow: visible;
+    [data-testid="stHeader"] {
+        background-color: #000000 !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
     }
-    .custom-metric-card { 
-        flex: 0 0 calc(50% - 6px) !important; 
-        width: calc(50% - 6px) !important;
-        min-width: unset; 
-        padding: 15px 10px; 
+
+    /* Main Title Styling */
+    .main-title {
+        text-align: center;
+        color: #FFFFFF;
+        font-weight: 800;
+        font-size: 3.5rem;
+        margin-bottom: 0px;
+        letter-spacing: -1px;
     }
-    .m-value { font-size: 20px; }
-    .sub-title { font-size: 0.75rem !important; letter-spacing: 1px; }
-}
 
-/* AI Trading Intelligence Styling */
-@keyframes pulse-green {
-    0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }
-    70% { box-shadow: 0 0 0 15px rgba(0, 230, 118, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
-}
-@keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(213, 0, 0, 0.4); }
-    70% { box-shadow: 0 0 0 15px rgba(213, 0, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(213, 0, 0, 0); }
-}
-@keyframes pulse-yellow {
-    0% { box-shadow: 0 0 0 0 rgba(255, 214, 0, 0.4); }
-    70% { box-shadow: 0 0 0 15px rgba(255, 214, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 214, 0, 0); }
-}
+    .sub-title {
+        text-align: center;
+        color: #8892B0;
+        font-weight: 300;
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
 
-.ai-card {
-    background: #000000;
-    border: 1px solid #1A1A1A;
-    border-radius: 8px;
-    padding: 35px 20px;
-    text-align: center;
-    margin-bottom: 30px;
-    position: relative;
-    overflow: hidden;
-    font-family: 'Inter', sans-serif;
-}
-.ai-title { color: #555555; font-size: 11px; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 20px; font-weight: 600; }
-.ai-recom { 
-    color: #FFFFFF; 
-    font-size: 42px; 
-    font-weight: 300; 
-    letter-spacing: 2px; 
-    margin-bottom: 15px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 15px; 
-}
-.pulse-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-.ai-desc { color: #888888; font-size: 15px; font-weight: 300; }
+    /* Metric Cards - Premium Glassmorphism */
+    div[data-testid="metric-container"] {
+        background: rgba(20, 20, 20, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: all 0.3s ease;
+    }
+
+    div[data-testid="metric-container"]:hover {
+        border: 1px solid rgba(0, 200, 83, 0.5);
+        box-shadow: 0 0 20px rgba(0, 200, 83, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Sidebar Premium Styling */
+    [data-testid="stSidebar"] {
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Tabs Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 20px;
+        background-color: transparent;
+        border-bottom: none !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
+        display: none;
+    }
+
+    .stTabs [data-baseweb="tab-border"] {
+        display: none !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: nowrap !important;
+        background-color: transparent;
+        border-radius: 4px 4px 0px 0px;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        color: #8892B0;
+        border: none !important;
+    }
+
+    .stTabs [aria-selected="true"] {
+        color: #FFFFFF !important;
+    }
+
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #FF0000 !important;
+    }
+
+    /* Responsive Mobile & Tablet Adjustments */
+    @media (max-width: 768px) {
+        .main-title {
+            font-size: 2rem !important;
+            line-height: 1.2 !important;
+        }
+
+        .sub-title {
+            font-size: 0.75rem !important;
+            margin-bottom: 20px !important;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 1.8rem !important;
+        }
+
+        .stTabs [data-baseweb="tab"] {
+            font-size: 0.85rem !important;
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+        }
+
+        div[data-testid="stPlotlyChart"],
+        div[data-testid="stPlotlyChart"] iframe {
+            height: 400px !important;
+        }
+    }
+
+    /* Hide Streamlit Branding but Keep Sidebar Toggle */
+    #MainMenu {
+        visibility: hidden;
+    }
+
+    footer {
+        visibility: hidden;
+    }
+
+    /* Custom Metric Row Styling */
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 12px;
+        padding-bottom: 20px;
+    }
+
+    .custom-metric-card {
+        flex: 1;
+        min-width: 0;
+        background: rgba(20, 20, 20, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px 10px;
+        border-radius: 12px;
+        text-align: center;
+        backdrop-filter: blur(12px);
+        font-family: 'Outfit', sans-serif;
+        transition: transform 0.2s ease;
+    }
+
+    .custom-metric-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .m-label {
+        color: #8892B0;
+        font-size: clamp(10px, 1vw, 12px);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        font-weight: 400;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .m-value {
+        color: #FFFFFF;
+        font-size: clamp(16px, 1.5vw, 24px);
+        font-weight: 600;
+        margin-bottom: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .m-delta {
+        font-size: clamp(10px, 1vw, 13px);
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .metric-row {
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 5px;
+            overflow: visible;
+        }
+
+        .custom-metric-card {
+            flex: 0 0 calc(50% - 6px) !important;
+            width: calc(50% - 6px) !important;
+            min-width: unset;
+            padding: 15px 10px;
+        }
+
+        .m-value {
+            font-size: 20px;
+        }
+
+        .sub-title {
+            font-size: 0.75rem !important;
+            letter-spacing: 1px;
+        }
+    }
+
+    /* AI Trading Intelligence Styling */
+    @keyframes pulse-green {
+        0% {
+            box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 15px rgba(0, 230, 118, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(0, 230, 118, 0);
+        }
+    }
+
+    @keyframes pulse-red {
+        0% {
+            box-shadow: 0 0 0 0 rgba(213, 0, 0, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 15px rgba(213, 0, 0, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(213, 0, 0, 0);
+        }
+    }
+
+    @keyframes pulse-yellow {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 214, 0, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 15px rgba(255, 214, 0, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 214, 0, 0);
+        }
+    }
+
+    .ai-card {
+        background: #000000;
+        border: 1px solid #1A1A1A;
+        border-radius: 8px;
+        padding: 35px 20px;
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .ai-title {
+        color: #555555;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .ai-recom {
+        color: #FFFFFF;
+        font-size: 42px;
+        font-weight: 300;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .pulse-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .ai-desc {
+        color: #888888;
+        font-size: 15px;
+        font-weight: 300;
+    }
