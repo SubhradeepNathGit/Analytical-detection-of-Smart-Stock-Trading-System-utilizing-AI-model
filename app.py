@@ -60,40 +60,38 @@ with st.sidebar:
     # Initialize query params for state retention
     qp = st.query_params
     
-    default_ticker = qp.get("ticker", "AAPL")
-    default_start = qp.get("start", "2016-01-01")
-    default_end = qp.get("end", str(datetime.date.today()))
-    default_curr = qp.get("currency", "USD")
-    
-    try:
-        start_date_val = pd.to_datetime(default_start).date()
-    except:
-        start_date_val = pd.to_datetime('2016-01-01').date()
-        
-    try:
-        end_date_val = pd.to_datetime(default_end).date()
-    except:
-        end_date_val = datetime.date.today()
-        
+    if "ticker_input" not in st.session_state:
+        st.session_state.ticker_input = qp.get("ticker", "AAPL")
+    if "start_input" not in st.session_state:
+        try:
+            st.session_state.start_input = pd.to_datetime(qp.get("start", "2016-01-01")).date()
+        except:
+            st.session_state.start_input = pd.to_datetime('2016-01-01').date()
+    if "end_input" not in st.session_state:
+        try:
+            st.session_state.end_input = pd.to_datetime(qp.get("end", str(datetime.date.today()))).date()
+        except:
+            st.session_state.end_input = datetime.date.today()
+            
     currencies = ["USD", "EUR", "GBP", "INR", "JPY", "AUD", "CAD"]
-    if default_curr not in currencies:
-        default_curr = "USD"
-    curr_index = currencies.index(default_curr)
+    if "currency_input" not in st.session_state:
+        c = qp.get("currency", "USD")
+        st.session_state.currency_input = c if c in currencies else "USD"
 
-    user_input = st.text_input('Stock Ticker', default_ticker).upper()
+    user_input = st.text_input('Stock Ticker', key="ticker_input").upper()
     
     if not user_input.strip():
         st.error("Ticker cannot be empty! Displaying previous data.")
-        user_input = default_ticker if default_ticker.strip() else "AAPL"
+        user_input = "AAPL"
         
-    start_date = st.date_input('Start Date', start_date_val)
-    end_date = st.date_input('End Date', end_date_val)
+    start_date = st.date_input('Start Date', key="start_input")
+    end_date = st.date_input('End Date', key="end_input")
     
     st.markdown("### Currency Converter")
     target_currency = st.selectbox(
         "Display Values In",
         currencies,
-        index=curr_index
+        key="currency_input"
     )
     
     # Update query params to hold state across refresh
