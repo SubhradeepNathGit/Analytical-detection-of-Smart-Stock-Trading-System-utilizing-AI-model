@@ -1,0 +1,27 @@
+<div class="metric-row">
+    <div class="custom-metric-card">
+        <div class="m-label">Current Price</div>
+        <div class="m-value">{fx_symbol}{current_price:.2f}</div>
+        <div class="m-delta" style="color: {delta_color};">{delta_arrow} {abs_price_change:.2f} ({pct_change:.2f}%)</div>
+    </div>
+    <div class="custom-metric-card">
+        <div class="m-label">Today's High</div>
+        <div class="m-value">{fx_symbol}{today_high:.2f}</div>
+    </div>
+    <div class="custom-metric-card">
+        <div class="m-label">Today's Low</div>
+        <div class="m-value">{fx_symbol}{today_low:.2f}</div>
+    </div>
+    <div class="custom-metric-card">
+        <div class="m-label">52W High</div>
+        <div class="m-value">{fx_symbol}{high_52:.2f}</div>
+    </div>
+    <div class="custom-metric-card">
+        <div class="m-label">52W Low</div>
+        <div class="m-value">{fx_symbol}{low_52:.2f}</div>
+    </div>
+    <div class="custom-metric-card">
+        <div class="m-label">Avg Volume</div>
+        <div class="m-value">{avg_vol:,}</div>
+    </div>
+</div>
