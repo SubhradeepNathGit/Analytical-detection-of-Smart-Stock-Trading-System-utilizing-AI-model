@@ -374,11 +374,13 @@ with tab4:
     lstm_fill = 'rgba(0, 230, 118, 0.1)' if lstm_change >= 0 else 'rgba(255, 61, 0, 0.1)'
 
     fig3 = go.Figure()
-    fig3.add_trace(go.Scattergl(y=y_test.flatten(), mode='lines', name='Actual Market Data', line=dict(color='rgba(255, 61, 0, 0.5)', width=1.5)))
+    fig3.add_trace(go.Scattergl(y=y_test.flatten(), mode='lines', name='Actual Market Data', line=dict(color='rgba(150, 150, 150, 0.6)', width=1.5)))
     fig3.add_trace(go.Scattergl(y=y_predicted.flatten(), mode='lines', name='LSTM Prediction', line=dict(color=lstm_color, width=2.5), fill='tozeroy', fillcolor=lstm_fill))
     
     fig3.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
-                       hovermode="x unified", height=500, xaxis_title="Days (Test Dataset)", yaxis_title=f"Price ({target_currency})",
+                       hovermode="x unified", height=500,
+                       xaxis=dict(title=dict(text="Timeline", font=dict(size=11, color="#8892B0")), tickfont=dict(size=10)),
+                       yaxis=dict(title=dict(text=f"Price ({target_currency})", font=dict(size=11, color="#8892B0")), tickfont=dict(size=10)),
                        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="center", x=0.5),
                        margin=dict(l=0, r=0, t=80, b=0))
     st.plotly_chart(fig3, use_container_width=True, config={'displayModeBar': False})
@@ -407,7 +409,18 @@ with tab5:
     price_diff = final_forecast_price - last_actual_price
     pct_change = (price_diff / last_actual_price) * 100
     
-    if pct_change > 15:
+    # Smart Trend Override (Detects crashed stocks / falling knives)
+    try:
+        ma200_val = stock_data['Close'].rolling(200).mean().dropna().iloc[-1] * fx_rate
+        is_crashing = last_actual_price < (ma200_val * 0.8) # 20% below 200-day MA
+    except:
+        is_crashing = False
+    
+    if is_crashing and pct_change > 0:
+        recom, color, animation = "HIGH RISK / AVOID", "#FF3D00", "pulse-red"
+        desc = f"Projected {pct_change:.2f}% technical bounce, but stock is in severe structural downtrend. Avoid."
+        color = "#FF3D00" # Force Red Line
+    elif pct_change > 15:
         recom, color, animation = "STRONG BUY", "#00e676", "pulse-green"
         desc = f"Projected {pct_change:.2f}% Upside. AI detects highly favorable risk-reward ratio for accumulation."
     elif pct_change > 5:
@@ -416,10 +429,10 @@ with tab5:
     elif pct_change > 1:
         recom, color, animation = "MODERATE BUY", "#00C853", "pulse-green"
         desc = f"Slight bullish divergence ({pct_change:.2f}%). Maintain cautious upside exposure."
-    elif pct_change > -2:
+    elif pct_change > -5:
         recom, color, animation = "NEUTRAL / HOLD", "#FFD600", "pulse-yellow"
         desc = f"Market consolidating ({pct_change:.2f}%). Awaiting clearer momentum breakout signals."
-    elif pct_change > -8:
+    elif pct_change > -15:
         recom, color, animation = "HIGH RISK EXPOSURE", "#FF3D00", "pulse-red"
         desc = f"Projected {pct_change:.2f}% Drop. AI detects bearish technicals. Consider hedging."
     else:
@@ -456,7 +469,9 @@ with tab5:
     fig4.add_trace(go.Scattergl(x=plot_forecast_ds, y=plot_forecast_y, mode='lines', name='Future Trajectory', line=dict(color=future_color, width=2.5), fill='tozeroy', fillcolor=future_fill))
     
     fig4.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
-                       hovermode="x unified", height=500, xaxis_title="Timeline", yaxis_title=f"Projected Price ({target_currency})",
+                       hovermode="x unified", height=500,
+                       xaxis=dict(title=dict(text="Timeline", font=dict(size=11, color="#8892B0")), tickfont=dict(size=10)),
+                       yaxis=dict(title=dict(text=f"Price ({target_currency})", font=dict(size=11, color="#8892B0")), tickfont=dict(size=10)),
                        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="center", x=0.5),
                        margin=dict(l=0, r=0, t=80, b=0))
     
