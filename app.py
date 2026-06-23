@@ -8,6 +8,14 @@ import yfinance as yf
 from neuralprophet import NeuralProphet
 import tensorflow as tf
 import os
+import shutil
+
+# Ensure static folder exists and contains the public files for static serving
+if not os.path.exists("static"):
+    os.makedirs("static")
+if os.path.exists("public/research paper.pdf") and not os.path.exists("static/research paper.pdf"):
+    shutil.copy("public/research paper.pdf", "static/research paper.pdf")
+
 from sklearn.preprocessing import MinMaxScaler
 import plotly.graph_objs as go
 import plotly.express as px
@@ -46,7 +54,20 @@ load_css('style.css')
 # ---------------------------------------------------------
 # App Header
 # ---------------------------------------------------------
-st.markdown("<h1 class='main-title'>Analytical Stock Trading </h1>", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div style="position: absolute; top: -30px; right: 0px; z-index: 100;">
+        <a href="app/static/research%20paper.pdf" target="_blank" 
+           style="color: #8892B0; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s ease;"
+           onmouseover="this.style.color='#00C853'" 
+           onmouseout="this.style.color='#8892B0'">
+            Research Paper ↗
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+st.markdown("<h1 class='main-title'>Analytical Neural Trading </h1>", unsafe_allow_html=True)
 st.markdown("<p class='sub-title'> AI Trading Intelligence • Developed by Subhradeep Nath</p>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
