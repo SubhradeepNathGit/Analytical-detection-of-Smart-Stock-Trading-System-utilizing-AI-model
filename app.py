@@ -1,6 +1,20 @@
 import streamlit as st
 st.set_page_config(page_title="Smart Stock AI", layout="wide", initial_sidebar_state="expanded")
 
+import os
+# Check if we should render the research paper instead
+if st.query_params.get("page") == "research_paper":
+    import base64
+    pdf_path = os.path.join(os.path.dirname(__file__), "public", "research paper.pdf")
+    if os.path.exists(pdf_path):
+        with open(pdf_path, "rb") as f:
+            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}#toolbar=1&navpanes=0&scrollbar=1" width="100%" height="100vh" style="border: none; min-height: 1000px;"></iframe>'
+        st.markdown(pdf_display, unsafe_allow_html=True)
+    else:
+        st.error(f"Research paper not found at {pdf_path}")
+    st.stop()
+
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -56,7 +70,7 @@ with st.sidebar:
     st.markdown(
         """
         <div style="margin-top: -20px; margin-bottom: 20px;">
-            <a href="Research_Paper" target="_blank" 
+            <a href="?page=research_paper" target="_blank" 
                style="color: #8892B0; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.3s ease;"
                onmouseover="this.style.color='#00C853'" 
                onmouseout="this.style.color='#8892B0'">
