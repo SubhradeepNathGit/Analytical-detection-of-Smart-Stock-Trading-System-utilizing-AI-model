@@ -16,16 +16,16 @@ if st.query_params.get("page") == "research_paper":
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     _load_css('style.css')
     
-    # Sidebar: back link with arrow
+    # Sidebar: back link with arrow (gray premium)
     with st.sidebar:
         st.markdown(
             """
             <div style="margin-top: -10px; margin-bottom: 30px;">
                 <a href="/" target="_self" 
-                   style="color: #00C853; text-decoration: none; font-size: 0.95rem; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: opacity 0.3s ease;"
-                   onmouseover="this.style.opacity='0.7'" 
-                   onmouseout="this.style.opacity='1'">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   style="color: #8892B0; text-decoration: none; font-size: 0.95rem; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: color 0.3s ease;"
+                   onmouseover="this.style.color='#FFFFFF'" 
+                   onmouseout="this.style.color='#8892B0'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
@@ -48,21 +48,133 @@ if st.query_params.get("page") == "research_paper":
         with open(pdf_path, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
         
-        # Use components.html to render the PDF — st.markdown sanitizes iframe src for data URIs
-        components.html(
-            f"""
-            <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.1);">
-                <iframe 
-                    src="data:application/pdf;base64,{base64_pdf}#toolbar=1&navpanes=0&scrollbar=1" 
-                    width="100%" 
-                    height="850" 
-                    style="border: none; display: block;">
-                </iframe>
+        # Use PDF.js to render on canvas — Chrome blocks data URI PDFs in iframes
+        pdf_viewer_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { background: #0a0a0a; font-family: 'Inter', -apple-system, sans-serif; }
+                #pdf-toolbar {
+                    position: sticky; top: 0; z-index: 100;
+                    background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(12px);
+                    padding: 10px 20px; display: flex; align-items: center;
+                    justify-content: center; gap: 12px;
+                    border-bottom: 1px solid rgba(255,255,255,0.08);
+                }
+                #pdf-toolbar button {
+                    background: rgba(255,255,255,0.08); color: #ccc; border: 1px solid rgba(255,255,255,0.1);
+                    padding: 6px 14px; border-radius: 6px; cursor: pointer;
+                    font-size: 13px; font-weight: 500; transition: all 0.2s;
+                }
+                #pdf-toolbar button:hover { background: rgba(255,255,255,0.15); color: #fff; }
+                #pdf-toolbar span { color: #8892B0; font-size: 13px; font-weight: 400; }
+                #pdf-container {
+                    display: flex; flex-direction: column; align-items: center;
+                    gap: 16px; padding: 24px 16px; min-height: 100vh;
+                }
+                #pdf-container canvas {
+                    max-width: 100%;
+                    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+                    border-radius: 4px;
+                }
+                #loading {
+                    color: #8892B0; text-align: center; padding: 60px 20px;
+                    font-size: 15px; font-weight: 400;
+                }
+                .spinner { 
+                    width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.1);
+                    border-top-color: #8892B0; border-radius: 50%;
+                    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+                }
+                @keyframes spin { to { transform: rotate(360deg); } }
+            </style>
+        </head>
+        <body>
+            <div id="loading"><div class="spinner"></div>Rendering research paper...</div>
+            <div id="pdf-toolbar" style="display:none;">
+                <button onclick="zoomOut()">−</button>
+                <span id="zoom-level">100%</span>
+                <button onclick="zoomIn()">+</button>
+                <span style="margin: 0 8px; color: rgba(255,255,255,0.15);">|</span>
+                <span id="page-info">Loading...</span>
             </div>
-            """,
-            height=870,
-            scrolling=False
-        )
+            <div id="pdf-container"></div>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+            <script>
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+                let currentScale = 1.5;
+                let pdfDoc = null;
+                const BASE64_DATA = '__PDF_BASE64__';
+
+                function renderAllPages() {
+                    const container = document.getElementById('pdf-container');
+                    container.innerHTML = '';
+                    for (let i = 1; i <= pdfDoc.numPages; i++) {
+                        renderPage(i, container);
+                    }
+                    document.getElementById('zoom-level').textContent = Math.round(currentScale / 1.5 * 100) + '%';
+                }
+
+                function renderPage(num, container) {
+                    pdfDoc.getPage(num).then(function(page) {
+                        const viewport = page.getViewport({ scale: currentScale });
+                        const canvas = document.createElement('canvas');
+                        canvas.id = 'page-' + num;
+                        const ctx = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+
+                        // Insert at correct position to maintain page order
+                        const existingCanvases = container.querySelectorAll('canvas');
+                        let inserted = false;
+                        for (let c of existingCanvases) {
+                            const cNum = parseInt(c.id.split('-')[1]);
+                            if (cNum > num) {
+                                container.insertBefore(canvas, c);
+                                inserted = true;
+                                break;
+                            }
+                        }
+                        if (!inserted) container.appendChild(canvas);
+
+                        page.render({ canvasContext: ctx, viewport: viewport });
+                    });
+                }
+
+                function zoomIn() {
+                    if (currentScale < 3) { currentScale += 0.25; renderAllPages(); }
+                }
+                function zoomOut() {
+                    if (currentScale > 0.75) { currentScale -= 0.25; renderAllPages(); }
+                }
+
+                // Decode and load PDF
+                const raw = atob(BASE64_DATA);
+                const uint8 = new Uint8Array(raw.length);
+                for (let i = 0; i < raw.length; i++) uint8[i] = raw.charCodeAt(i);
+
+                pdfjsLib.getDocument({ data: uint8 }).promise.then(function(pdf) {
+                    pdfDoc = pdf;
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('pdf-toolbar').style.display = 'flex';
+                    document.getElementById('page-info').textContent = pdf.numPages + ' pages';
+                    renderAllPages();
+                }).catch(function(err) {
+                    document.getElementById('loading').innerHTML = '<span style="color:#FF3D00;">Failed to load PDF: ' + err.message + '</span>';
+                });
+            </script>
+        </body>
+        </html>
+        """
+        
+        # Inject the base64 PDF data into the HTML template
+        pdf_viewer_html = pdf_viewer_html.replace('__PDF_BASE64__', base64_pdf)
+        
+        components.html(pdf_viewer_html, height=900, scrolling=True)
     else:
         st.error(f"Research paper not found at {pdf_path}")
     st.stop()
