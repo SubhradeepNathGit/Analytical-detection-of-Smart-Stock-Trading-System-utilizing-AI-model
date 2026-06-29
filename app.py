@@ -55,28 +55,35 @@ if st.query_params.get("page") == "research_paper":
         <head>
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { background: #0a0a0a; font-family: 'Inter', -apple-system, sans-serif; }
+                html, body { background: #000000; font-family: 'Inter', -apple-system, sans-serif; }
+                /* Custom scrollbar — pure black */
+                ::-webkit-scrollbar { width: 8px; }
+                ::-webkit-scrollbar-track { background: #000000; }
+                ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 4px; }
+                ::-webkit-scrollbar-thumb:hover { background: #2a2a2a; }
+                * { scrollbar-color: #1a1a1a #000000; scrollbar-width: thin; }
                 #pdf-toolbar {
                     position: sticky; top: 0; z-index: 100;
-                    background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(12px);
+                    background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(12px);
                     padding: 10px 20px; display: flex; align-items: center;
                     justify-content: center; gap: 12px;
-                    border-bottom: 1px solid rgba(255,255,255,0.08);
+                    border-bottom: 1px solid rgba(255,255,255,0.06);
                 }
                 #pdf-toolbar button {
-                    background: rgba(255,255,255,0.08); color: #ccc; border: 1px solid rgba(255,255,255,0.1);
+                    background: rgba(255,255,255,0.06); color: #8892B0; border: 1px solid rgba(255,255,255,0.08);
                     padding: 6px 14px; border-radius: 6px; cursor: pointer;
                     font-size: 13px; font-weight: 500; transition: all 0.2s;
                 }
-                #pdf-toolbar button:hover { background: rgba(255,255,255,0.15); color: #fff; }
+                #pdf-toolbar button:hover { background: rgba(255,255,255,0.12); color: #fff; }
                 #pdf-toolbar span { color: #8892B0; font-size: 13px; font-weight: 400; }
                 #pdf-container {
                     display: flex; flex-direction: column; align-items: center;
                     gap: 16px; padding: 24px 16px; min-height: 100vh;
+                    background: #000000;
                 }
                 #pdf-container canvas {
                     max-width: 100%;
-                    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+                    box-shadow: 0 4px 24px rgba(0,0,0,0.8);
                     border-radius: 4px;
                 }
                 #loading {
@@ -84,7 +91,7 @@ if st.query_params.get("page") == "research_paper":
                     font-size: 15px; font-weight: 400;
                 }
                 .spinner { 
-                    width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.1);
+                    width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.08);
                     border-top-color: #8892B0; border-radius: 50%;
                     animation: spin 0.8s linear infinite; margin: 0 auto 16px;
                 }
