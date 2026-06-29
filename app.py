@@ -6,10 +6,23 @@ import os
 if st.query_params.get("page") == "research_paper":
     import base64
     pdf_path = os.path.join(os.path.dirname(__file__), "public", "research paper.pdf")
+    
+    st.markdown("""
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; border-radius: 10px;">
+            <div>
+                <h2 style="color: #FFFFFF; margin: 0; font-size: 1.5rem; font-weight: 600;">Analytical detection of Smart Stock Trading System utilizing AI-model</h2>
+                <p style="color: #8892B0; margin: 0; font-size: 0.9rem;">International Journal of Scientific Research in Engineering and Management (IJSREM)</p>
+            </div>
+            <a href="/" target="_self" style="background-color: #00C853; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: background-color 0.3s ease; box-shadow: 0 4px 6px rgba(0, 200, 83, 0.2);">
+                ← Back to Dashboard
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
+
     if os.path.exists(pdf_path):
         with open(pdf_path, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}#toolbar=1&navpanes=0&scrollbar=1" width="100%" height="100vh" style="border: none; min-height: 1000px;"></iframe>'
+        pdf_display = f'<div style="border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.1);"><iframe src="data:application/pdf;base64,{base64_pdf}#toolbar=1&navpanes=0&scrollbar=1" width="100%" height="850px" style="border: none;"></iframe></div>'
         st.markdown(pdf_display, unsafe_allow_html=True)
     else:
         st.error(f"Research paper not found at {pdf_path}")
@@ -70,7 +83,7 @@ with st.sidebar:
     st.markdown(
         """
         <div style="margin-top: -20px; margin-bottom: 20px;">
-            <a href="?page=research_paper" target="_blank" 
+            <a href="?page=research_paper" target="_self" 
                style="color: #8892B0; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.3s ease;"
                onmouseover="this.style.color='#00C853'" 
                onmouseout="this.style.color='#8892B0'">
@@ -88,7 +101,7 @@ with st.sidebar:
     qp = st.query_params
     
     if "ticker_input" not in st.session_state:
-        st.session_state.ticker_input = qp.get("ticker", "AAPL")
+        st.session_state.ticker_input = qp.get("ticker", "")
     if "start_input" not in st.session_state:
         try:
             st.session_state.start_input = pd.to_datetime(qp.get("start", "2016-01-01")).date()
@@ -106,10 +119,6 @@ with st.sidebar:
         st.session_state.currency_input = c if c in currencies else "USD"
 
     user_input = st.text_input('Stock Ticker', key="ticker_input").upper()
-    
-    if not user_input.strip():
-        st.error("Ticker cannot be empty! Displaying previous data.")
-        user_input = "AAPL"
         
     start_date = st.date_input('Start Date', key="start_input")
     end_date = st.date_input('End Date', key="end_input")
@@ -137,6 +146,23 @@ with st.sidebar:
         """, 
         unsafe_allow_html=True
     )
+
+if not user_input.strip():
+    st.markdown("""
+    <div style="background: rgba(0, 200, 83, 0.05); border: 1px solid rgba(0, 200, 83, 0.2); border-radius: 12px; padding: 50px; text-align: center; margin-top: 60px; backdrop-filter: blur(10px);">
+        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#00C853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+                <polyline points="16 8 12 12 9 9 4 14"></polyline>
+            </svg>
+        </div>
+        <h2 style="color: #00C853; margin-bottom: 15px; font-weight: 600; font-size: 2rem;">System Ready</h2>
+        <p style="color: #8892B0; font-size: 1.2rem; max-width: 600px; margin: 0 auto;">Enter a valid stock ticker symbol in the Control Panel to initialize the AI Trading Intelligence Engine and access real-time market data.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.stop()
 
 # ---------------------------------------------------------
 # Caching Functions
