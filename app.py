@@ -35,14 +35,7 @@ if st.query_params.get("page") == "research_paper":
             """,
             unsafe_allow_html=True
         )
-    
-    # Paper title header
-    st.markdown("""
-        <div style="padding: 15px 30px; background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; border-radius: 10px;">
-            <h2 style="color: #FFFFFF; margin: 0; font-size: 1.3rem; font-weight: 600;">Analytical detection of Smart Stock Trading System utilizing AI-model</h2>
-            <p style="color: #8892B0; margin: 5px 0 0 0; font-size: 0.85rem;">International Journal of Scientific Research in Engineering and Management (IJSREM)</p>
-        </div>
-    """, unsafe_allow_html=True)
+
 
     if os.path.exists(pdf_path):
         with open(pdf_path, "rb") as f:
