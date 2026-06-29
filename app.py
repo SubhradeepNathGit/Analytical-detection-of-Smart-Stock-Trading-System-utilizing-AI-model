@@ -4,22 +4,41 @@ st.set_page_config(page_title="Smart Stock AI", layout="wide", initial_sidebar_s
 import os
 # Check if we should render the research paper instead
 if st.query_params.get("page") == "research_paper":
-    import base64
+    import shutil
     pdf_path = os.path.join(os.path.dirname(__file__), "public", "research paper.pdf")
+    
+    # Copy PDF to static/ directory for URL-based serving (base64 data URIs break on Cloud)
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    os.makedirs(static_dir, exist_ok=True)
+    static_pdf = os.path.join(static_dir, "research_paper.pdf")
+    if os.path.exists(pdf_path) and not os.path.exists(static_pdf):
+        shutil.copy2(pdf_path, static_pdf)
+    
+    # Load CSS for consistent styling
+    def _load_css(file_name):
+        css_path = os.path.join(os.path.dirname(__file__), file_name)
+        with open(css_path) as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    _load_css('style.css')
     
     st.markdown("""
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; border-radius: 10px;">
             <div>
-                <h2 style="color: #FFFFFF; margin: 0; font-size: 1.5rem; font-weight: 600;">Analytical detection of Smart Stock Trading System utilizing AI-model</h2>
-                <p style="color: #8892B0; margin: 0; font-size: 0.9rem;">International Journal of Scientific Research in Engineering and Management (IJSREM)</p>
+                <h2 style="color: #FFFFFF; margin: 0; font-size: 1.3rem; font-weight: 600;">Analytical detection of Smart Stock Trading System utilizing AI-model</h2>
+                <p style="color: #8892B0; margin: 0; font-size: 0.85rem;">International Journal of Scientific Research in Engineering and Management (IJSREM)</p>
             </div>
-            <a href="/" target="_self" style="background-color: #00C853; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: background-color 0.3s ease; box-shadow: 0 4px 6px rgba(0, 200, 83, 0.2);">
+            <a href="/" target="_self" style="background-color: #00C853; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: background-color 0.3s ease; box-shadow: 0 4px 6px rgba(0, 200, 83, 0.2); white-space: nowrap;">
                 ← Back to Dashboard
             </a>
         </div>
     """, unsafe_allow_html=True)
 
-    if os.path.exists(pdf_path):
+    if os.path.exists(static_pdf):
+        pdf_display = f'<div style="border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.1);"><iframe src="app/static/research_paper.pdf#toolbar=1&navpanes=0&scrollbar=1" width="100%" height="850px" style="border: none;"></iframe></div>'
+        st.markdown(pdf_display, unsafe_allow_html=True)
+    elif os.path.exists(pdf_path):
+        # Fallback to base64 if static copy failed
+        import base64
         with open(pdf_path, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
         pdf_display = f'<div style="border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.1);"><iframe src="data:application/pdf;base64,{base64_pdf}#toolbar=1&navpanes=0&scrollbar=1" width="100%" height="850px" style="border: none;"></iframe></div>'

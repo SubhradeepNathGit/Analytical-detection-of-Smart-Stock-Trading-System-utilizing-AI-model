@@ -2,6 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
+/* Hide default Streamlit multipage sidebar navigation */
+[data-testid="stSidebarNav"] {
+    display: none !important;
+}
+nav[data-testid="stSidebarNav"] {
+    display: none !important;
+}
+ul[data-testid="stSidebarNavItems"] {
+    display: none !important;
+}
+section[data-testid="stSidebar"] > div > div:first-child > ul {
+    display: none !important;
+}
+
 html,
 body,
 [data-testid="stAppViewContainer"],
@@ -23,7 +37,7 @@ body,
         text-align: center;
         color: #FFFFFF;
         font-weight: 800;
-        font-size: 3.5rem;
+        font-size: 2.2rem;
         margin-bottom: 0px;
         letter-spacing: -1px;
     }
